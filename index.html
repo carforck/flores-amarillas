@@ -21,6 +21,10 @@
   <body class="container jardin-nitido">
     <!-- El jardín, de fondo durante toda la experiencia -->
     <div id="fondo" aria-hidden="true">
+      <!-- Prado real, graduado a noche y con el desenfoque ya horneado en el
+           propio archivo: así pesa 503 KB y no cuesta GPU en el móvil. -->
+      <video id="prado" poster="video/prado-poster.jpg"
+             muted loop playsinline preload="none" disablepictureinpicture></video>
       <div class="moon"></div>
       <div class="night"></div>
       <div id="campo"></div>

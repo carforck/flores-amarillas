@@ -246,20 +246,29 @@ body.jardin-nitido #fondo .flowers {
   transform-origin: left;
 }
 
-.stories__deck { position: absolute; inset: 0; }
+/* Carrusel horizontal: las fotos van una al lado de otra en una cinta que se
+   desplaza. Antes se fundían en el sitio; así se ve de dónde viene cada una. */
+.stories__deck {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  translate: 0 0;
+  transition: translate 620ms cubic-bezier(.22, .92, .24, 1);
+  will-change: translate;
+}
 
 /* ---------- La tarjeta, con marco de Instagram -------------------------- */
 
 .post {
-  position: absolute;
-  inset: 0;
+  flex: 0 0 100%;
   display: grid;
   grid-template-rows: auto 1fr auto;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 700ms ease, visibility 700ms;
+  height: 100%;
+  /* Las de al lado se atenúan un poco: el ojo va a la del centro. */
+  opacity: 0.35;
+  transition: opacity 620ms ease;
 }
-.post.is-active { opacity: 1; visibility: visible; }
+.post.is-active { opacity: 1; }
 
 .post__head {
   display: flex;
@@ -487,6 +496,7 @@ body.ha-terminado #stories::before { display: none; }
 /* ---------- Menos movimiento para quien lo pida ------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
+  .stories__deck { transition-duration: 1ms; }
   #empezar { animation: none; }
   #empezar::after { display: none; }
   #verso span { opacity: 1; translate: 0; filter: none; animation: none; }

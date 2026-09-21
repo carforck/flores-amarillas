@@ -19,6 +19,20 @@ const cuerpo = document.body;
 // --- Jardín de fondo ------------------------------------------------------
 montarJardin("#fondo .flowers");
 const campo = montarCampo("#campo");
+
+// El prado sólo se descarga si tiene sentido: ni con ahorro de datos activado
+// ni para quien ha pedido menos movimiento. El póster cubre ambos casos.
+const prado = $("#prado");
+const ahorrandoDatos = navigator.connection?.saveData === true;
+const menosMovimiento = matchMedia("(prefers-reduced-motion: reduce)").matches;
+if (prado && !ahorrandoDatos && !menosMovimiento) {
+  prado.addEventListener("canplay", () => prado.classList.add("listo"), { once: true });
+  prado.src = "video/prado.mp4";
+  prado.load();
+  prado.play().catch(() => {});      // va en silencio: los navegadores lo permiten
+} else if (prado) {
+  prado.classList.add("listo");      // se queda el póster fijo
+}
 requestAnimationFrame(() => requestAnimationFrame(() =>
   cuerpo.classList.remove("container")));   // suelta las animaciones a la vez
 

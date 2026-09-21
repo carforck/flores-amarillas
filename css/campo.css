@@ -1,4 +1,38 @@
 /* =========================================================================
+   Capa 0: el prado real. Va detrás de todo, incluido el campo de flores CSS.
+   Es textura y profundidad, no protagonista: por eso está oscurecido y
+   desenfocado ya en el archivo, no con filtros de CSS (que se recalculan
+   en cada frame y en móvil se notan).
+   ========================================================================= */
+
+#prado {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 2.5s ease;
+  pointer-events: none;
+}
+#prado.listo { opacity: 0.85; }
+
+/* El velo tapa el prado, pero la luna tiene que quedar por encima: si no,
+   pierde su halo y se ve como un círculo gris apagado. */
+#fondo .moon { z-index: 1; }
+
+/* Un velo por encima: sin él, el verde del prado compite con el jardín. */
+#fondo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(ellipse at 50% 60%, rgb(6 10 5 / 30%), rgb(6 10 5 / 78%));
+  pointer-events: none;
+}
+
+/* =========================================================================
    El campo de flores: la capa que inunda el fondo.
    Todo se mueve en función de --floracion (0 -> 1), que js/campo.js
    alimenta con el avance de la canción. Una sola variable manda sobre

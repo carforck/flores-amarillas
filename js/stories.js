@@ -123,6 +123,7 @@ export function montarStories(raiz, tramos) {
 export function conectar(raiz, audio, tramos, { alTerminar } = {}) {
   const barras = [...raiz.querySelectorAll("[data-bar] i")];
   const posts = [...raiz.querySelectorAll("[data-story]")];
+  const cinta = raiz.querySelector(".stories__deck");
   let activo = -1;
   let terminado = false;
 
@@ -142,6 +143,7 @@ export function conectar(raiz, audio, tramos, { alTerminar } = {}) {
         p.classList.toggle("is-active", n === i);
         p.setAttribute("aria-hidden", String(n !== i));
       });
+      cinta.style.translate = `${-i * 100}% 0`;
       activo = i;
     }
 
