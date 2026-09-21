@@ -33,7 +33,12 @@ export function iniciarLetra(audio, destino, lineas = letra) {
     const linea = lineaEn(audio.currentTime);
     if (linea !== actual) {
       actual = linea;
-      destino.textContent = linea ? linea.text : "";
+      // Palabra a palabra: el verso se posa en vez de aparecer de golpe.
+      // Cada <span> lleva su índice y CSS le pone el retardo.
+      destino.innerHTML = linea
+        ? linea.text.split(" ").map((w, i) =>
+            `<span style="--i:${i}">${w}</span>`).join(" ")
+        : "";
       destino.classList.toggle("is-visible", Boolean(linea));
     }
     rafId = requestAnimationFrame(pintar);

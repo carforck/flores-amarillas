@@ -1,0 +1,116 @@
+/* =========================================================================
+   El campo de flores: la capa que inunda el fondo.
+   Todo se mueve en función de --floracion (0 -> 1), que js/campo.js
+   alimenta con el avance de la canción. Una sola variable manda sobre
+   cientos de elementos: el navegador sólo recalcula transformadas.
+   ========================================================================= */
+
+#campo {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+  /* Suelo de floración: la portada no puede verse pelada, tiene que haber ya
+     algo de amarillo antes de empezar. De ahí para arriba lo sube app.js con
+     el progreso de la canción. */
+  --floracion: 0.18;
+}
+
+/* ---------- La flor del fondo -------------------------------------------
+   Una sola etiqueta por flor: el pétalo va de imagen de fondo, así 120
+   flores cuestan 120 nodos y no 5.000.                                    */
+
+.brote {
+  position: absolute;
+  inset-block-end: var(--y);
+  inset-inline-start: var(--x);
+  width: var(--tam);
+  aspect-ratio: 1;
+  background: var(--petalo) center / contain no-repeat;
+  transform-origin: bottom center;
+  /* Florece cuando el avance de la canción pasa su umbral. El 6 es la
+     brusquedad de la apertura: más alto, más de golpe. */
+  scale: clamp(0, calc((var(--floracion) - var(--umbral)) * 6), 1);
+  opacity: clamp(0, calc((var(--floracion) - var(--umbral)) * 8), var(--op));
+  transition: scale 900ms cubic-bezier(.16, 1.2, .3, 1), opacity 900ms ease;
+  animation: mecer var(--vaiven) ease-in-out var(--desfase) infinite alternate;
+  will-change: transform;
+}
+
+@keyframes mecer {
+  from { rotate: calc(var(--giro) * -1); }
+  to   { rotate: var(--giro); }
+}
+
+/* Tres profundidades. Las de atrás, pequeñas, borrosas y apagadas; las de
+   delante, grandes y nítidas. Es lo que da sensación de fondo. */
+/* La profundidad se hace con desenfoque y opacidad, no bajando el brillo:
+   bajarlo apaga el amarillo y las flores del fondo se vuelven grises. */
+.capa--lejos  { filter: blur(2.5px) saturate(1.25); z-index: 1; }
+.capa--medio  { filter: blur(1px) saturate(1.15); z-index: 2; }
+.capa--cerca  { filter: saturate(1.1) drop-shadow(0 0 12px rgb(255 209 26 / 45%)); z-index: 3; }
+
+/* ---------- Luciérnagas -------------------------------------------------- */
+
+.luciernaga {
+  position: absolute;
+  inset-block-end: var(--y);
+  inset-inline-start: var(--x);
+  width: var(--tam);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff9db 0%, #ffe066 45%, rgb(255 224 102 / 0%) 70%);
+  opacity: 0;
+  animation:
+    vagar var(--vaiven) ease-in-out var(--desfase) infinite alternate,
+    latir calc(var(--vaiven) / 3) ease-in-out var(--desfase) infinite;
+  will-change: transform, opacity;
+}
+@keyframes vagar {
+  from { translate: 0 0; }
+  to   { translate: var(--dx) var(--dy); }
+}
+@keyframes latir {
+  0%, 100% { opacity: 0; }
+  50%      { opacity: calc(var(--op) * clamp(0, calc(var(--floracion) * 2), 1)); }
+}
+
+/* ---------- Pétalos que caen --------------------------------------------- */
+
+.petalo {
+  position: absolute;
+  inset-block-start: -8%;
+  inset-inline-start: var(--x);
+  width: var(--tam);
+  aspect-ratio: 1;
+  background: var(--petalo) center / contain no-repeat;
+  opacity: 0;
+  animation: caer var(--vaiven) linear var(--desfase) infinite;
+  will-change: transform, opacity;
+}
+@keyframes caer {
+  0%   { translate: 0 0;        rotate: 0deg;   opacity: 0; }
+  10%  { opacity: var(--op); }
+  90%  { opacity: var(--op); }
+  100% { translate: var(--dx) 115vh; rotate: 540deg; opacity: 0; }
+}
+
+/* ---------- El desbordamiento final --------------------------------------
+   En el último verso el campo se adelanta y sube el brillo: es el momento
+   en que el fondo termina de inundarse.                                    */
+
+body.desbordado #campo {
+  animation: desbordar 4s ease-out forwards;
+}
+@keyframes desbordar {
+  to { filter: brightness(1.25) saturate(1.15); }
+}
+
+/* ---------- Menos movimiento para quien lo pida --------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .brote, .luciernaga, .petalo { animation: none; }
+  .luciernaga { opacity: var(--op); }
+  .petalo { display: none; }
+}

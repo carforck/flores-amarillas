@@ -8,8 +8,9 @@
 import { portada, cierre, fotos } from "./config.js";
 import { audio as cfgAudio } from "./config.js";
 import { montarJardin } from "./garden.js";
+import { montarCampo, florecerCon } from "./campo.js";
 import { maquinaDeEscribir } from "./typewriter.js";
-import { iniciarLetra } from "./lyrics.js";
+import { iniciarLetra, finDeLaLetra } from "./lyrics.js";
 import { repartir, montarStories, conectar, imagen } from "./stories.js";
 
 const $ = s => document.querySelector(s);
@@ -17,6 +18,7 @@ const cuerpo = document.body;
 
 // --- Jardín de fondo ------------------------------------------------------
 montarJardin("#fondo .flowers");
+const campo = montarCampo("#campo");
 requestAnimationFrame(() => requestAnimationFrame(() =>
   cuerpo.classList.remove("container")));   // suelta las animaciones a la vez
 
@@ -45,6 +47,11 @@ function empezar() {
   pararMaquina();
 
   iniciarLetra(audio, $("#verso"));
+
+  // El fondo se va inundando de amarillo al ritmo de la canción.
+  florecerCon(audio, campo, finDeLaLetra(), {
+    alDesbordar: () => cuerpo.classList.add("desbordado"),
+  });
   if (!sinFotos) mando = conectar(seccion, audio, tramos, { alTerminar: mostrarFinal });
 }
 

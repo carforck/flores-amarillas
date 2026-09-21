@@ -75,6 +75,9 @@ body.jardin-nitido #fondo .flowers {
 }
 #fondo .moon { position: absolute; inset-block-start: 4%; inset-inline-start: 8%; }
 
+/* El campo vive detrás del jardín protagonista. */
+#fondo .flowers { z-index: 2; }
+
 /* ---------- Portada ----------------------------------------------------- */
 
 #portada {
@@ -133,22 +136,71 @@ body.jardin-nitido #fondo .flowers {
 }
 
 #empezar {
+  position: relative;
   justify-self: center;
-  padding: 1rem 2rem;
-  font: inherit;
+  padding: 1.05rem 2.4rem;
+  overflow: hidden;
+  font-family: var(--letra-ui);
+  font-size: 1rem;
   font-weight: 700;
+  letter-spacing: 0.01em;
   color: #2b2000;
-  background: linear-gradient(140deg, var(--amarillo-claro), var(--amarillo));
+  background: linear-gradient(140deg, #fffdf2 0%, var(--amarillo-claro) 35%, var(--amarillo) 100%);
   border: 0;
   border-radius: 999px;
-  box-shadow: 0 10px 34px rgb(255 224 102 / 38%);
   cursor: pointer;
   /* Objetivo táctil holgado: se pulsa con el pulgar, no con un ratón. */
-  min-height: 52px;
-  min-width: 14rem;
-  transition: scale 180ms ease;
+  min-height: 54px;
+  min-width: 15rem;
+  /* Tres sombras: el halo cálido, el volumen y el filo claro de arriba. */
+  box-shadow:
+    0 0 38px -6px rgb(255 224 102 / 55%),
+    0 12px 26px -10px rgb(0 0 0 / 70%),
+    inset 0 1px 0 rgb(255 255 255 / 75%);
+  transition: scale 160ms ease, box-shadow 320ms ease;
+  /* El latido va en el halo, no en el tamaño: si se escala el botón, el
+     objetivo táctil se mueve bajo el dedo y nunca está quieto. */
+  animation: respirar 3.6s ease-in-out infinite;
 }
-#empezar:active { scale: 0.96; }
+#empezar:hover {
+  box-shadow:
+    0 0 56px -4px rgb(255 224 102 / 75%),
+    0 14px 30px -10px rgb(0 0 0 / 70%),
+    inset 0 1px 0 rgb(255 255 255 / 85%);
+}
+#empezar:active { scale: 0.965; animation: none; }
+#empezar:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+
+/* Latido lento: invita a pulsarlo sin mover el botón de sitio. */
+@keyframes respirar {
+  0%, 100% {
+    box-shadow:
+      0 0 34px -8px rgb(255 224 102 / 45%),
+      0 12px 26px -10px rgb(0 0 0 / 70%),
+      inset 0 1px 0 rgb(255 255 255 / 75%);
+  }
+  50% {
+    box-shadow:
+      0 0 58px -2px rgb(255 224 102 / 80%),
+      0 12px 26px -10px rgb(0 0 0 / 70%),
+      inset 0 1px 0 rgb(255 255 255 / 85%);
+  }
+}
+
+/* Destello que cruza el botón cada pocos segundos. */
+#empezar::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: -60%;
+  width: 45%;
+  background: linear-gradient(100deg, transparent, rgb(255 255 255 / 70%), transparent);
+  animation: destello 3.6s ease-in-out infinite;
+}
+@keyframes destello {
+  0%, 55%  { translate: 0; }
+  100%     { translate: 380% 0; }
+}
 
 /* ---------- Stories ----------------------------------------------------- */
 
@@ -279,6 +331,22 @@ body.jardin-nitido #fondo .flowers {
 }
 #verso.is-visible { opacity: 1; translate: 0 0; }
 
+/* Cada palabra se posa con su propio retardo: el verso llega como se canta,
+   no como un cartel que se enciende. */
+#verso span {
+  display: inline-block;
+  opacity: 0;
+  translate: 0 0.5em;
+  filter: blur(4px);
+}
+#verso.is-visible span {
+  animation: posarse 620ms cubic-bezier(.2, .8, .25, 1) forwards;
+  animation-delay: calc(var(--i) * 85ms);
+}
+@keyframes posarse {
+  to { opacity: 1; translate: 0 0; filter: blur(0); }
+}
+
 /* ---------- Zonas táctiles ---------------------------------------------- */
 
 .stories__taps {
@@ -320,7 +388,7 @@ body.en-pausa #pausa-aviso { opacity: 1; }
   gap: 1.5rem;
   padding: calc(var(--seguro-arriba) + 2rem) 1.25rem calc(var(--seguro-abajo) + 2rem);
   text-align: center;
-  background: linear-gradient(rgb(11 15 10 / 94%), rgb(11 15 10 / 99%));
+  background: linear-gradient(rgb(11 15 10 / 62%), rgb(11 15 10 / 86%));
   overflow-y: auto;
   animation: aparecer 1.2s ease both;
 }
@@ -349,26 +417,36 @@ body.en-pausa #pausa-aviso { opacity: 1; }
 }
 .rejilla img { height: 100%; animation: none; }
 
-/* Con el cierre puesto, la story de debajo no debe asomar. */
-#final.esta-vivo ~ * { display: none; }
+/* Al acabar la canción se retira la story ENTERA, no sus piezas: si sólo se
+   ocultan cabecera y pie, la foto se recoloca sola y durante el fundido se ve
+   mal encajada. Retirándola completa, detrás queda el jardín ya inundado de
+   amarillo, que es el final que toca. */
+body.ha-terminado .stories__deck,
 body.ha-terminado .stories__bars,
-body.ha-terminado .post__head,
-body.ha-terminado .post__foot,
 body.ha-terminado #verso,
 body.ha-terminado .stories__taps { display: none; }
+body.ha-terminado #stories::before { display: none; }
 
 #otra-vez {
   justify-self: center;
-  padding: 0.85rem 1.75rem;
-  min-height: 48px;
-  font: inherit;
+  padding: 0.9rem 1.9rem;
+  min-height: 50px;
+  font-family: var(--letra-ui);
   font-weight: 600;
   color: var(--amarillo);
-  background: transparent;
-  border: 1.5px solid var(--amarillo);
+  background: rgb(255 224 102 / 6%);
+  border: 1.5px solid rgb(255 224 102 / 55%);
   border-radius: 999px;
   cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: background 260ms ease, border-color 260ms ease, scale 160ms ease;
 }
+#otra-vez:hover {
+  background: rgb(255 224 102 / 14%);
+  border-color: var(--amarillo);
+}
+#otra-vez:active { scale: 0.965; }
+#otra-vez:focus-visible { outline: 2px solid var(--amarillo); outline-offset: 3px; }
 
 /* ---------- Escritorio: la experiencia se mete en un marco de móvil ------ */
 
@@ -409,6 +487,9 @@ body.ha-terminado .stories__taps { display: none; }
 /* ---------- Menos movimiento para quien lo pida ------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
+  #empezar { animation: none; }
+  #empezar::after { display: none; }
+  #verso span { opacity: 1; translate: 0; filter: none; animation: none; }
   .post__media img { animation: none; }
   #fondo .flowers, .post, #verso, #portada { transition-duration: 1ms; }
   #fondo *, .flowers * { animation-duration: 1ms !important; animation-iteration-count: 1 !important; }
