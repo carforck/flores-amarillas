@@ -73,7 +73,9 @@ body.jardin-nitido #fondo .flowers {
   filter: blur(0) saturate(105%) brightness(1);
   opacity: 1;
 }
-#fondo .moon { position: absolute; inset-block-start: 4%; inset-inline-start: 8%; }
+/* En móvil la tarjeta ocupa el centro, así que la luna sube a la esquina para
+   que no la roce y se vea entera con su halo. */
+#fondo .moon { position: absolute; inset-block-start: 1%; inset-inline-start: 4%; }
 
 /* El campo vive detrás del jardín protagonista. */
 #fondo .flowers { z-index: 2; }
@@ -213,14 +215,10 @@ body.jardin-nitido #fondo .flowers {
   overflow: hidden;
 }
 #stories.esta-vivo { display: block; }
-/* Velo: sin él, la luna del jardín se cuela por encima del nombre de usuario. */
-#stories::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background: var(--tinta);
-}
+/* Sin velo opaco. Lo tuve un rato para que la luna no se colara por encima
+   del nombre de usuario, pero tapaba el jardín, el campo y el vídeo: en móvil
+   sólo se veían las fotos y se perdía toda la escena. Ahora la cabecera va
+   dentro de una tarjeta con fondo propio, que resuelve lo mismo sin tapar. */
 .stories__deck, .stories__bars, #verso { z-index: 2; }
 
 .stories__bars {
@@ -262,20 +260,38 @@ body.jardin-nitido #fondo .flowers {
 .post {
   flex: 0 0 100%;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  align-content: center;
+  justify-items: center;
   height: 100%;
-  /* Las de al lado se atenúan un poco: el ojo va a la del centro. */
-  opacity: 0.35;
-  transition: opacity 620ms ease;
+  padding: calc(var(--seguro-arriba) + 4rem) 7vw calc(var(--seguro-abajo) + 7.5rem);
+  /* Las de al lado se atenúan: el ojo va a la del centro. */
+  opacity: 0.3;
+  transform-style: preserve-3d;
+  transition: opacity 620ms ease, transform 620ms cubic-bezier(.22, .92, .24, 1);
 }
 .post.is-active { opacity: 1; }
+
+/* La tarjeta: fondo propio y sombra, para que se despegue del jardín sin
+   necesidad de taparlo. */
+.post__card {
+  width: 100%;
+  max-width: 19rem;
+  overflow: hidden;
+  background: rgb(9 13 8 / 88%);
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 1.1rem;
+  box-shadow:
+    0 26px 60px -22px rgb(0 0 0 / 95%),
+    0 0 40px -12px rgb(255 209 26 / 22%);
+  backdrop-filter: blur(14px);
+}
 
 .post__head {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: calc(var(--seguro-arriba) + 1.25rem) 1rem 0.75rem;
-  font-size: 0.875rem;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.8125rem;
 }
 .post__avatar {
   width: 32px; height: 32px;
@@ -290,6 +306,11 @@ body.jardin-nitido #fondo .flowers {
 .post__media {
   position: relative;
   display: block;
+  /* La tarjeta toma la forma de la foto, pero con tope de altura: una foto
+     muy vertical llenaría la pantalla y volvería a tapar el jardín, que es
+     justo lo que se quería arreglar. */
+  aspect-ratio: var(--ratio);
+  max-height: min(48dvh, 24rem);
   overflow: hidden;
   background-image: var(--lqip);   /* miniatura borrosa mientras llega la buena */
   background-size: cover;
@@ -306,12 +327,11 @@ body.jardin-nitido #fondo .flowers {
 @keyframes acercar { from { scale: 1; } to { scale: 1.08; } }
 
 .post__foot {
-  padding: 0.875rem 1rem calc(var(--seguro-abajo) + 1.25rem);
-  background: linear-gradient(to top, rgb(0 0 0 / 88%), rgb(0 0 0 / 0%));
+  padding: 0.8rem 0.9rem 1rem;
 }
 .post__caption {
   margin: 0;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   line-height: 1.5;
   color: rgb(255 255 255 / 88%);
 }
@@ -322,7 +342,7 @@ body.jardin-nitido #fondo .flowers {
 #verso {
   position: absolute;
   inset-inline: 1.5rem;
-  inset-block-end: calc(var(--seguro-abajo) + 7rem);
+  inset-block-end: calc(var(--seguro-abajo) + 1.75rem);
   z-index: 3;
   margin: 0;
   font-family: var(--letra-emotiva);

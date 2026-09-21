@@ -18,9 +18,74 @@
 }
 #prado.listo { opacity: 0.85; }
 
-/* El velo tapa el prado, pero la luna tiene que quedar por encima: si no,
-   pierde su halo y se ve como un círculo gris apagado. */
-#fondo .moon { z-index: 1; }
+/* ---------- La luna ------------------------------------------------------
+   La original era un círculo plano con una sombra suelta. Esta tiene
+   atmósfera: un halo ancho que respira, un borde caliente y relieve en la
+   superficie. Va por encima del velo del prado; si no, pierde el halo y
+   queda como un disco gris.                                              */
+
+#fondo .moon {
+  z-index: 1;
+  width: clamp(72px, 13vmin, 132px);
+  height: clamp(72px, 13vmin, 132px);
+  background:
+    radial-gradient(circle at 68% 74%, rgb(255 186 60 / 35%) 0%, transparent 46%),
+    radial-gradient(circle at 34% 30%, #fffdf2 0%, #fff3b0 38%, #ffd93d 72%, #f2a922 100%);
+  box-shadow:
+    0 0 0 1px rgb(255 240 168 / 45%),
+    0 0 26px 2px rgb(255 224 102 / 85%),
+    0 0 70px 12px rgb(255 205 60 / 45%),
+    0 0 150px 40px rgb(255 190 40 / 22%);
+  animation: luna-respira 7s ease-in-out infinite;
+}
+
+/* Relieve: dos manchas tenues bastan para que deje de parecer una pegatina. */
+#fondo .moon::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 62% 38%, rgb(206 146 36 / 16%) 0 7%,  transparent 16%),
+    radial-gradient(circle at 40% 66%, rgb(206 146 36 / 12%) 0 5%,  transparent 13%),
+    radial-gradient(circle at 74% 62%, rgb(206 146 36 / 10%) 0 3%,  transparent 9%);
+}
+
+/* Halo atmosférico, muy ancho y muy tenue: es lo que da el aire de noche. */
+#fondo .moon::after {
+  content: "";
+  position: absolute;
+  inset: -190%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 214 80 / 16%) 0%, transparent 62%);
+  animation: luna-aura 7s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes luna-respira {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgb(255 240 168 / 40%),
+      0 0 24px 2px rgb(255 224 102 / 70%),
+      0 0 64px 10px rgb(255 205 60 / 36%),
+      0 0 130px 32px rgb(255 190 40 / 16%);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgb(255 240 168 / 60%),
+      0 0 34px 4px rgb(255 224 102 / 95%),
+      0 0 92px 18px rgb(255 205 60 / 55%),
+      0 0 180px 55px rgb(255 190 40 / 28%);
+  }
+}
+@keyframes luna-aura {
+  0%, 100% { opacity: 0.7; scale: 1; }
+  50%      { opacity: 1;   scale: 1.08; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #fondo .moon, #fondo .moon::after { animation: none; }
+}
 
 /* Un velo por encima: sin él, el verde del prado compite con el jardín. */
 #fondo::after {

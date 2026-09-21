@@ -97,18 +97,25 @@ export function hidratar(post) {
   });
 }
 
+/**
+ * La foto va en una tarjeta que flota sobre el jardín, no a pantalla completa.
+ * A pantalla completa tapaba el fondo, el campo de flores y el vídeo, que son
+ * justo lo que hace bonita la escena.
+ */
 const tarjeta = (foto, i) => `
   <article class="post" data-story="${i}" aria-hidden="${i === 0 ? "false" : "true"}">
-    <header class="post__head">
-      <span class="post__avatar" aria-hidden="true"></span>
-      <span class="post__user">${instagram.usuario}</span>
-      <span class="post__dot" aria-hidden="true">·</span>
-      <span class="post__time">${instagram.pie}</span>
-    </header>
-    ${imagen(foto, { prioridad: i === 0 })}
-    <footer class="post__foot">
-      <p class="post__caption"><b>${instagram.usuario}</b> ${foto.caption}</p>
-    </footer>
+    <div class="post__card">
+      <header class="post__head">
+        <span class="post__avatar" aria-hidden="true"></span>
+        <span class="post__user">${instagram.usuario}</span>
+        <span class="post__dot" aria-hidden="true">·</span>
+        <span class="post__time">${instagram.pie}</span>
+      </header>
+      ${imagen(foto, { prioridad: i === 0 })}
+      <footer class="post__foot">
+        <p class="post__caption"><b>${instagram.usuario}</b> ${foto.caption}</p>
+      </footer>
+    </div>
   </article>`;
 
 export function montarStories(raiz, tramos) {
@@ -144,6 +151,16 @@ export function conectar(raiz, audio, tramos, { alTerminar } = {}) {
         p.setAttribute("aria-hidden", String(n !== i));
       });
       cinta.style.translate = `${-i * 100}% 0`;
+      // Efecto ruleta: las tarjetas de los lados se giran y se van al fondo.
+      // El giro se limita a 2 posiciones para que con muchas fotos las lejanas
+      // no queden de canto y desaparezcan.
+      posts.forEach((p, n) => {
+        const d = Math.max(-2, Math.min(2, n - i));
+        const lejos = Math.abs(d);
+        p.style.transform =
+          `perspective(1100px) rotateY(${-d * 34}deg) ` +
+          `translateZ(${-lejos * 120}px) scale(${1 - lejos * 0.08})`;
+      });
       activo = i;
     }
 
