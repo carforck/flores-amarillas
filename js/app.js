@@ -123,6 +123,14 @@ function mostrarFinal() {
                    "Siete", "Ocho", "Nueve", "Diez"][fotos.length] ?? fotos.length;
   final.querySelector(".cierre").innerHTML =
     cierre.texto.join("<br>").replace("{fotos}", cuantas);
+  // Cada verso en su propio <span>: el CSS los escalona con --i. El contador
+  // corre a través de las estrofas para que la entrada no se reinicie.
+  let verso = 0;
+  final.querySelector(".promesa").innerHTML = cierre.mensaje
+    .map(estrofa => `<span class="estrofa">` + estrofa
+      .map(linea => `<span class="linea" style="--i:${verso++}">${linea}</span>`)
+      .join("") + `</span>`)
+    .join("");
   // En la rejilla se piden de inmediato: aquí ya no hay nada que diferir.
   final.querySelector(".rejilla").innerHTML =
     fotos.map(f => imagen(f, { prioridad: true })).join("");

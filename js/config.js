@@ -28,11 +28,31 @@ export const portada = {
 
 export const cierre = {
   titulo: "Y hasta aquí, mi amor",
+  /*
+   * La promesa. Es lo único de todo el sitio escrito con sus palabras, así
+   * que manda sobre el resto del cierre y va aparte del `texto`.
+   *
+   * Va por estrofas, y cada estrofa por versos. Cada verso entra por su
+   * cuenta: se leen al ritmo al que se dirían, no de golpe como un cartel.
+   * Los saltos de línea son los suyos y se respetan tal cual; si añades o
+   * quitas versos, el escalonado se recalcula solo.
+   */
+  mensaje: [
+    [
+      "Hoy quiero enmendar lo que faltó el 21 de septiembre,",
+      "porque eres lo más especial en mi vida,",
+      "y siempre lo serás.",
+    ],
+    [
+      "El amor no crece de la noche a la mañana, se cultiva.",
+      "Por eso, cada día me encargaré de regar nuestra unión con respeto,",
+      "tiempo y detalles, asegurando nuestro futuro.",
+    ],
+  ],
   // {fotos} lo sustituye app.js: si no, cada vez que añades una imagen el
   // texto se queda mintiendo.
   texto: [
     "{fotos} fotos, una canción y un jardín que florece para ti.",
-    "Lo de siempre: te amo.",
   ],
 };
 
