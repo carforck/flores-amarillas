@@ -26,6 +26,21 @@ export const portada = {
   cta: "Presióname Amor! 💖",
 };
 
+export const cierre = {
+  titulo: "Y hasta aquí, mi amor",
+  texto: [
+    "Tres fotos, una canción y un jardín que florece para ti.",
+    "Lo de siempre: te amo.",
+  ],
+};
+
+export const instagram = {
+  usuario: "made_hm_17",
+  perfil: "https://www.instagram.com/made_hm_17/",
+  avatar: "img/avatar.jpg",   // opcional; si no existe se pinta un degradado
+  pie: "hace un ratito",
+};
+
 export const audio = {
   src: "sound/Floricienta.mp3",
   // Los navegadores bloquean autoplay con sonido: hace falta un gesto del
@@ -54,13 +69,37 @@ export const letra = [
 ];
 
 /**
- * FOTOS — pendiente de cargar.
- * Cada entrada: { file, alt, caption, fecha, t?, focus? }
- *   t     -> segundo de la canción en que aparece (opcional)
- *   focus -> punto focal para el recorte, ej. "50% 30%"
- * Las rutas apuntan a photos/opt/, que genera `npm run fotos`.
+ * FOTOS. Las genera `npm run fotos` desde photos/originales/.
+ * `alt` describe la imagen para quien no la ve; `caption` es el pie del post.
+ * El reparto en la canción es automático (js/stories.js), pero puedes fijarlo
+ * con `t` si quieres que una foto caiga en un verso concreto.
  */
-export const fotos = [];
+export const fotos = [
+  {
+    nombre: "foto-01",
+    anchos: [480, 900, 1400],
+    ratio: 0.75,
+    alt: "Los dos en la playa al atardecer, frente a frente, con una flor en tu pelo",
+    caption: "El mar, el atardecer y tú. No hacía falta nada más.",
+    lqip: "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAAAQAgCdASoMABAAA4BaJbACdADcou4QXxgAAP3VP0AhtFwLbxWZyhiwMqUoPoE2yoddLDD9hjG6e5v0r9eGhrP0wuln9NSnyL3hIA0ws3L5Ra7wakatAAAA",
+  },
+  {
+    nombre: "foto-02",
+    anchos: [480, 900, 1400],
+    ratio: 1,
+    alt: "Los dos muy juntos, de noche, entre luces cálidas y con corona de flores",
+    caption: "Contigo hasta una noche cualquiera se vuelve fiesta.",
+    lqip: "data:image/webp;base64,UklGRnIAAABXRUJQVlA4IGYAAADwAQCdASoQABAAA4BaJbACdACC9noTsgAA+4T+Q3mqg7Z3bxSeHeAUO00K22TUBo5fIKuCsaxXn0CHOSHO8FD5o3bP/dP3a3IXknvu+DJQgm1t5fNj69UwNDncZm8tnY+RnewYAAA=",
+  },
+  {
+    nombre: "foto-03",
+    anchos: [480, 900, 1400],
+    ratio: 0.75,
+    alt: "Los dos sentados dentro de un corazón gigante de madera, con la montaña detrás",
+    caption: "Encontramos un corazón enorme en la montaña. Seguía siendo más pequeño que el mío.",
+    lqip: "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAAAwAgCdASoMABAAA4BaJZACdADbp2qzvVIkAAD4tKWuK3DTqk3FbCwIxrao5XxXDKFSr536QFD34xffkL9Yd4fJkBou7H+VGvUouc7HKwFJhj6AAAA=",
+  },
+];
 
 /**
  * Geometría del jardín. Antes: 333 líneas de HTML repetido escrito a mano.

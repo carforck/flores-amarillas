@@ -1,0 +1,15 @@
+{
+  "name": "flores-amarillas",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Sitio estático. Node sólo hace falta para preparar fotos y audio; lo que se publica no lleva build.",
+  "scripts": {
+    "fotos": "node tools/fotos.mjs",
+    "audio": "node tools/audio.mjs",
+    "dev": "node tools/serve.mjs 8777"
+  },
+  "devDependencies": {
+    "sharp": "^0.33.5"
+  }
+}

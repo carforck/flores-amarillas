@@ -2,26 +2,56 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0f0a" />
     <title>Para ti</title>
-    <link rel="icon" href="img/logoamarillapng.png" type="image/png" />
-    <link rel="stylesheet" href="css/style.css" />
-    <!-- La escena siguiente pesa: la precargamos mientras se lee esto. -->
-    <link rel="prefetch" href="flower.html" />
+    <link rel="icon" href="img/flowers.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500;1,700&display=swap" />
+    <link rel="stylesheet" href="css/garden.css" />
+    <link rel="stylesheet" href="css/app.css" />
+    <!-- El preload tiene que declarar el mismo srcset/sizes que el <picture>;
+         si no, se baja un tamaño y luego el navegador usa otro. -->
+    <link rel="preload" as="image" type="image/avif"
+          imagesrcset="photos/opt/foto-01-480.avif 480w, photos/opt/foto-01-900.avif 900w, photos/opt/foto-01-1400.avif 1400w"
+          imagesizes="(min-width: 700px) 440px, 100vw" />
   </head>
-  <body>
-    <main class="content">
-      <div class="message-container">
-        <h1 class="title"><span id="typewriter"></span></h1>
+  <body class="container jardin-nitido">
+    <!-- El jardín, de fondo durante toda la experiencia -->
+    <div id="fondo" aria-hidden="true">
+      <div class="moon"></div>
+      <div class="night"></div>
+      <div class="flowers"></div>
+    </div>
+
+    <!-- Portada -->
+    <section id="portada">
+      <h1 class="titulo"><span id="typewriter"></span></h1>
+      <p class="descripcion"></p>
+      <button id="empezar" type="button">Presióname Amor! 💖</button>
+    </section>
+
+    <!-- Stories -->
+    <section id="stories" aria-label="Nuestra historia">
+      <div class="stories__bars"></div>
+      <div class="stories__deck"></div>
+      <p id="verso" aria-live="polite"></p>
+      <p id="pausa-aviso">en pausa</p>
+      <div class="stories__taps">
+        <button type="button" data-ir="atras" aria-label="Foto anterior"></button>
+        <button type="button" data-ir="adelante" aria-label="Foto siguiente"></button>
       </div>
 
-      <div class="description"></div>
-
-      <div class="button">
-        <a href="flower.html" class="btn"></a>
+      <div id="final">
+        <h2></h2>
+        <div class="rejilla"></div>
+        <p class="cierre"></p>
+        <button id="otra-vez" type="button">Verlo otra vez 🌻</button>
       </div>
-    </main>
+    </section>
 
-    <script type="module" src="js/portada.js"></script>
+    <audio preload="none" playsinline></audio>
+    <script type="module" src="js/app.js"></script>
   </body>
 </html>
