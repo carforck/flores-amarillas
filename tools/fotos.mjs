@@ -8,7 +8,7 @@
  * con el placeholder borroso ya incrustado en base64.
  */
 import sharp from "sharp";
-import { readdir, mkdir, writeFile, readFile } from "node:fs/promises";
+import { readdir, mkdir, writeFile, readFile, unlink } from "node:fs/promises";
 import { join, parse } from "node:path";
 
 const ORIGEN = "photos/originales";
@@ -55,9 +55,40 @@ function asignarNombres(archivos, registro) {
   return registro;
 }
 
+/**
+ * Instagram exporta a veces una foto vertical rellenada a cuadrado con barras
+ * blancas a los lados. Sobre la tarjeta oscura esas barras cantan muchísimo,
+ * así que se recortan antes de generar nada.
+ *
+ * Se detectan a mano en vez de usar sharp.trim() para que sólo se toque la
+ * foto que de verdad las tiene, y para poder decir en el log cuánto se quitó.
+ */
+const BLANCO = 243;        // por debajo de esto ya no es barra, es foto clara
+const MUESTRA = 7;         // se mira 1 de cada 7 píxeles: sobra y es 7x más rápido
+
+async function detectarBarras(entrada) {
+  const { data, info } = await sharp(entrada).rotate().raw().toBuffer({ resolveWithObject: true });
+  const { width, height, channels } = info;
+  const claro = (x, y) => {
+    const i = (y * width + x) * channels;
+    return data[i] > BLANCO && data[i + 1] > BLANCO && data[i + 2] > BLANCO;
+  };
+  const columna = x => { for (let y = 0; y < height; y += MUESTRA) if (!claro(x, y)) return false; return true; };
+  const fila    = y => { for (let x = 0; x < width;  x += MUESTRA) if (!claro(x, y)) return false; return true; };
+
+  let izq = 0, der = 0, arr = 0, aba = 0;
+  while (izq < width  && columna(izq)) izq++;
+  while (der < width  - izq && columna(width  - 1 - der)) der++;
+  while (arr < height && fila(arr)) arr++;
+  while (aba < height - arr && fila(height - 1 - aba)) aba++;
+
+  if (!(izq || der || arr || aba)) return null;
+  return { left: izq, top: arr, width: width - izq - der, height: height - arr - aba };
+}
+
 /** Miniatura de 16px en base64: se pinta borrosa mientras carga la de verdad. */
-async function placeholder(entrada) {
-  const buf = await sharp(entrada).resize(16, 16, { fit: "inside" }).webp({ quality: 40 }).toBuffer();
+async function placeholder(fuente) {
+  const buf = await fuente.resize(16, 16, { fit: "inside" }).webp({ quality: 40 }).toBuffer();
   return `data:image/webp;base64,${buf.toString("base64")}`;
 }
 
@@ -81,18 +112,27 @@ async function main() {
   await writeFile(REGISTRO, JSON.stringify(registro, null, 2) + "\n");
 
   const entradas = [];
+  const esperados = new Set();   // todo lo que este pase debe dejar en opt/
 
   for (const archivo of archivos) {
     const entrada = join(ORIGEN, archivo);
     const nombre = registro[archivo];
-    const img = sharp(entrada).rotate();               // respeta la orientación EXIF
-    const { width, height } = await img.metadata();
+    const barras = await detectarBarras(entrada);
+    // Fuente ya normalizada: orientación EXIF respetada y sin barras blancas.
+    const fuente = () => {
+      const s = sharp(entrada).rotate();
+      return barras ? s.extract(barras) : s;
+    };
+    const { width, height } = barras
+      ? { width: barras.width, height: barras.height }
+      : await sharp(entrada).rotate().metadata();
 
     const anchos = ANCHOS.filter(a => a <= width);
     if (!anchos.length) anchos.push(width);            // foto pequeña: se deja tal cual
 
     for (const ancho of anchos) {
-      const base = sharp(entrada).rotate().resize({ width: ancho, withoutEnlargement: true });
+      const base = fuente().resize({ width: ancho, withoutEnlargement: true });
+      for (const ext of ["avif", "webp", "jpg"]) esperados.add(`${nombre}-${ancho}.${ext}`);
       await Promise.all([
         base.clone().avif({ quality: CALIDAD.avif }).toFile(`${DESTINO}/${nombre}-${ancho}.avif`),
         base.clone().webp({ quality: CALIDAD.webp }).toFile(`${DESTINO}/${nombre}-${ancho}.webp`),
@@ -104,12 +144,26 @@ async function main() {
       nombre,
       anchos,
       ratio: +(width / height).toFixed(4),
-      lqip: await placeholder(entrada),
+      lqip: await placeholder(fuente()),
       alt: "",
       caption: "",
     });
-    console.log(`  ✓ ${archivo}  ->  ${anchos.join("/")}px  (${width}x${height})`);
+    const recorte = barras ? `  · barras blancas recortadas (${barras.left}+${barras.top} px)` : "";
+    console.log(`  ✓ ${archivo}  ->  ${anchos.join("/")}px  (${width}x${height})${recorte}`);
   }
+
+  /*
+   * Barrido de sobras. opt/ es salida generada: lo que no toca este pase no
+   * pinta nada ahí.
+   *
+   * Hacía falta porque el recorte de barras dejó una foto en 1085px de ancho
+   * y con ello dejó de generarse su tamaño de 1400. El archivo antiguo seguía
+   * en su sitio, así que el navegador que pedía el 1400 recibía un 200 con la
+   * versión vieja, sin recortar, en vez del 404 que habría cantado el fallo.
+   */
+  const sobras = (await readdir(DESTINO)).filter(f => !esperados.has(f));
+  await Promise.all(sobras.map(f => unlink(join(DESTINO, f))));
+  if (sobras.length) console.log(`\n  ${sobras.length} archivos obsoletos borrados de ${DESTINO}/`);
 
   // Bloque listo para pegar en config.js
   const bloque = "export const fotos = [\n" + entradas.map(e =>

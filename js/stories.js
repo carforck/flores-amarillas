@@ -57,10 +57,29 @@ export function repartir(fotos = FOTOS, lineas = letra) {
   }));
 }
 
-const srcset = (nombre, ext) =>
-  [480, 900, 1400].map(a => `${RAIZ}/${nombre}-${a}.${ext} ${a}w`).join(", ");
+/**
+ * Los anchos salen de la propia foto, no de una lista fija.
+ *
+ * Estaban clavados a [480, 900, 1400], pero el generador no crea un tamaño
+ * mayor que el original: una foto de 1085px sólo tiene 480 y 900. El srcset
+ * anunciaba igualmente el 1400 y en un móvil de pantalla densa el navegador
+ * pedía un archivo que no existe.
+ */
+const srcset = (foto, ext) =>
+  foto.anchos.map(a => `${RAIZ}/${foto.nombre}-${a}.${ext} ${a}w`).join(", ");
 
-const TAM = "(min-width: 700px) 440px, 100vw";
+/** El mayor que existe de verdad: sirve de reserva para el <img src>. */
+const reserva = foto => `${RAIZ}/${foto.nombre}-${foto.anchos.at(-1)}.jpg`;
+
+/*
+ * Lo que mide la foto de verdad, para que el navegador no se baje de más.
+ *
+ * Decía «440px en escritorio, 100vw en móvil», que era de cuando la foto
+ * ocupaba la pantalla entera. Ahora vive en una tarjeta topada a 19rem
+ * (304px) con un 7% de aire a cada lado: 86vw hasta que ese tope entra, a
+ * partir de 354px de ancho.
+ */
+const TAM = "(min-width: 354px) 304px, 86vw";
 
 /**
  * <picture> con AVIF -> WebP -> JPEG y miniatura borrosa mientras carga.
@@ -72,15 +91,15 @@ const TAM = "(min-width: 700px) 440px, 100vw";
  */
 export function imagen(foto, { prioridad = false } = {}) {
   const attr = prioridad
-    ? { av: "srcset", we: "srcset", im: "srcset", src: `src="${RAIZ}/${foto.nombre}-900.jpg"` }
+    ? { av: "srcset", we: "srcset", im: "srcset", src: `src="${reserva(foto)}"` }
     : { av: "data-srcset", we: "data-srcset", im: "data-srcset", src: "" };
 
   return `
     <picture class="post__media" style="--lqip: url('${foto.lqip}'); --ratio: ${foto.ratio}">
-      <source type="image/avif" ${attr.av}="${srcset(foto.nombre, "avif")}" sizes="${TAM}">
-      <source type="image/webp" ${attr.we}="${srcset(foto.nombre, "webp")}" sizes="${TAM}">
-      <img ${attr.src} ${attr.im}="${srcset(foto.nombre, "jpg")}" sizes="${TAM}"
-           data-jpg="${RAIZ}/${foto.nombre}-900.jpg"
+      <source type="image/avif" ${attr.av}="${srcset(foto, "avif")}" sizes="${TAM}">
+      <source type="image/webp" ${attr.we}="${srcset(foto, "webp")}" sizes="${TAM}">
+      <img ${attr.src} ${attr.im}="${srcset(foto, "jpg")}" sizes="${TAM}"
+           data-jpg="${reserva(foto)}"
            alt="${foto.alt}" decoding="async"
            fetchpriority="${prioridad ? "high" : "auto"}">
     </picture>`;
