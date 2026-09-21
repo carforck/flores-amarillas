@@ -1,42 +1,35 @@
-const typewriterElement = document.getElementById("typewriter");
+/** Efecto máquina de escribir. Las frases vienen de config.js, no del código. */
+import { portada } from "./config.js";
 
-const messages = [
-  "✨ Eres la razón de mis sonrisas ✨",
-  "💖 Mi mundo es más bonito contigo 💖",
-  "🌹 Siempre serás mi mejor regalo 🌹"
-];
+const VELOCIDAD = { escribir: 100, borrar: 50, pausa: 2000 };
 
-let messageIndex = 0;
-let charIndex = 0;
-let currentMessage = "";
-let isDeleting = false;
-let typingSpeed = 100;
+export function maquinaDeEscribir(destino, frases = portada.frases, v = VELOCIDAD) {
+  if (!destino || !frases.length) return () => {};
 
-function typeEffect() {
-  currentMessage = messages[messageIndex];
-
-  if (!isDeleting) {
-    // Escribir
-    typewriterElement.textContent = currentMessage.substring(0, charIndex + 1);
-    charIndex++;
-
-    if (charIndex === currentMessage.length) {
-      isDeleting = true;
-      setTimeout(typeEffect, 2000); // Espera antes de borrar
-      return;
-    }
-  } else {
-    // Borrar
-    typewriterElement.textContent = currentMessage.substring(0, charIndex - 1);
-    charIndex--;
-
-    if (charIndex === 0) {
-      isDeleting = false;
-      messageIndex = (messageIndex + 1) % messages.length; // siguiente frase
-    }
+  // Si piden menos movimiento, mostramos la primera frase y punto.
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    destino.textContent = frases[0];
+    return () => {};
   }
 
-  setTimeout(typeEffect, isDeleting ? typingSpeed / 2 : typingSpeed);
-}
+  let frase = 0, letra = 0, borrando = false, timer = null;
 
-typeEffect();
+  const paso = () => {
+    const texto = frases[frase];
+    letra += borrando ? -1 : 1;
+    destino.textContent = texto.slice(0, letra);
+
+    let espera = borrando ? v.borrar : v.escribir;
+    if (!borrando && letra === texto.length) {
+      borrando = true;
+      espera = v.pausa;
+    } else if (borrando && letra === 0) {
+      borrando = false;
+      frase = (frase + 1) % frases.length;
+    }
+    timer = setTimeout(paso, espera);
+  };
+
+  paso();
+  return () => clearTimeout(timer);
+}

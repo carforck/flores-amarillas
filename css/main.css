@@ -1609,58 +1609,12 @@ body {
 } /*# sourceMappingURL=main.css.map */
 
 
-/* Reset de estilos básicos */
-body, h1, p {
-  margin: 0;
-  padding: 0;
-}
-
-/* Estilos generales */
-body {
-  font-family: 'Arial', sans-serif;
-  background-color: #f7f7f7;
-  color: #333;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-h1 {
-  font-size: 2em;
-  line-height: 1.5;
-  margin-bottom: 20px;
-}
-
-/* Media Queries para tamaños de pantalla diferentes */
-@media screen and (max-width: 600px) {
-  /* Estilos para pantallas pequeñas */
-  h1 {
-      font-size: 1.5em;
-  }
-}
-
-@media screen and (min-width: 601px) and (max-width: 1024px) {
-  /* Estilos para pantallas medianas */
-  h1 {
-      font-size: 1.8em;
-  }
-}
-
-@media screen and (min-width: 1025px) {
-  /* Estilos para pantallas grandes */
-  h1 {
-      font-size: 2em;
-  }
-}
-
+/* (Reset genérico duplicado retirado: pisaba el fondo oscuro y .container) */
 
 .moon {
   position: absolute;
   top: 3%;
- / left: 10%;
+  left: 10%;
   width: 100px;
   height: 100px;
   border-radius: 50%;
