@@ -19,6 +19,10 @@
   --marco: 100vw;
   --alto: 100dvh;
   --jardin-escala: 1.15;
+  /* El verso y el hueco que la tarjeta le deja abajo tienen que salir del
+     mismo número: si se calculan por separado, uno se come al otro. */
+  --verso-fs: clamp(1.25rem, 6vw, 1.6rem);
+  --placa: calc(var(--verso-fs) * 1.4 * 3 + 1.4rem);
 }
 
 * { box-sizing: border-box; }
@@ -273,7 +277,14 @@ body.jardin-nitido #fondo .flowers {
   align-content: center;
   justify-items: center;
   height: 100%;
-  padding: calc(var(--seguro-arriba) + 4rem) 7vw calc(var(--seguro-abajo) + 7.5rem);
+  /* El relleno lateral iba en vw. En móvil da igual, pero en escritorio vw
+     mide la ventana entera (1482px), no el marco de 400: se comía 208px y
+     dejaba la tarjeta en 193. En % mide el propio marco. Abajo se reserva
+     exactamente la placa del verso, ni más ni menos. */
+  padding:
+    calc(var(--seguro-arriba) + 4rem)
+    7%
+    calc(var(--seguro-abajo) + var(--placa) + 2rem);
   /* Las de al lado se atenúan: el ojo va a la del centro. */
   opacity: 0.3;
   transform-style: preserve-3d;
@@ -310,8 +321,21 @@ body.jardin-nitido #fondo .flowers {
   box-shadow: 0 0 0 2px var(--tinta), 0 0 0 3.5px var(--amarillo);
   flex: none;
 }
-.post__user { font-weight: 700; }
-.post__dot, .post__time { color: var(--blanco-70); font-weight: 400; }
+/* El nombre cede antes que la fecha: si el marco se estrecha se recorta con
+   puntos suspensivos, en vez de partir «hace un ratito» en tres líneas. */
+.post__user {
+  font-weight: 700;
+  min-inline-size: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.post__dot, .post__time {
+  flex: none;
+  white-space: nowrap;
+  color: var(--blanco-70);
+  font-weight: 400;
+}
 
 .post__media {
   position: relative;
@@ -319,8 +343,15 @@ body.jardin-nitido #fondo .flowers {
   /* La tarjeta toma la forma de la foto, pero con tope de altura: una foto
      muy vertical llenaría la pantalla y volvería a tapar el jardín, que es
      justo lo que se quería arreglar. */
+  /* La anchura se fija a mano: con aspect-ratio y un tope de altura, el
+     navegador encogía el <picture> a lo ancho para respetar la proporción y
+     dejaba franjas de tarjeta a los lados. Fijando el ancho, el tope recorta
+     la foto (object-fit: cover) en vez de estrecharla. */
+  inline-size: 100%;
   aspect-ratio: var(--ratio);
-  max-height: min(48dvh, 24rem);
+  /* En dvh el tope miraba la ventana; dentro del marco de escritorio la
+     referencia buena es la altura del propio marco. */
+  max-block-size: min(var(--alto) * 0.42, 24rem);
   overflow: hidden;
   background-image: var(--lqip);   /* miniatura borrosa mientras llega la buena */
   background-size: cover;
@@ -354,7 +385,10 @@ body.jardin-nitido #fondo .flowers {
   inset-inline: 0.9rem;
   inset-block-end: calc(var(--seguro-abajo) + 1rem);
   z-index: 3;
-  margin: 0;
+  /* Misma anchura que la tarjeta: en escritorio la placa ocupaba los 400px
+     del marco mientras la foto medía 300, y parecían dos piezas sueltas. */
+  margin: 0 auto;
+  max-inline-size: 19rem;
   /* Placa translúcida: sobre el campo de flores amarillas el texto blanco a
      pelo no se leía por mucha sombra que llevara. */
   padding: 0.7rem 1rem;
@@ -363,7 +397,7 @@ body.jardin-nitido #fondo .flowers {
   backdrop-filter: blur(12px) saturate(120%);
   /* Alto reservado para tres líneas: así la placa no cambia de tamaño cada
      vez que entra un verso más largo o más corto. */
-  min-block-size: calc(3lh + 1.4rem);
+  min-block-size: var(--placa);
   /* Las palabras son <span> propios para poder escalonarlas. Con grid cada
      una se convertía en una celda y el verso salía en vertical, una palabra
      por línea. Con flex envolvente fluyen como texto normal. */
@@ -375,7 +409,7 @@ body.jardin-nitido #fondo .flowers {
   column-gap: 0.3em;
   row-gap: 0;
   font-family: var(--letra-emotiva);
-  font-size: clamp(1.25rem, 6vw, 1.6rem);
+  font-size: var(--verso-fs);
   font-weight: 700;
   font-style: italic;
   line-height: 1.4;
