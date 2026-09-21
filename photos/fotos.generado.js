@@ -1,5 +1,13 @@
 export const fotos = [
   {
+    nombre: "foto-04",
+    anchos: [480, 900, 1400],
+    ratio: 0.75,
+    alt: "",
+    caption: "",
+    lqip: "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAADwAQCdASoMABAAA4BaJQBOgCFKciG9rAAA/ibSbLxwpUJ0PU0LNKO6GMVHDAWiLOLruDuXWTzibfr53yzIgUOTEtGcBVArtUin3lE1G5uA0U4slYAAAA==",
+  },
+  {
     nombre: "foto-01",
     anchos: [480, 900, 1400],
     ratio: 0.75,

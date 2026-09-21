@@ -8,7 +8,7 @@
  * con el placeholder borroso ya incrustado en base64.
  */
 import sharp from "sharp";
-import { readdir, mkdir, writeFile } from "node:fs/promises";
+import { readdir, mkdir, writeFile, readFile } from "node:fs/promises";
 import { join, parse } from "node:path";
 
 const ORIGEN = "photos/originales";
@@ -18,15 +18,41 @@ const CALIDAD = { avif: 55, webp: 72, jpeg: 80 };
 
 const esImagen = f => /\.(jpe?g|png|webp|heic|heif|tiff?)$/i.test(f);
 
+const REGISTRO = "photos/nombres.json";
+
 /**
- * Nombre de salida. Si renombras el original con algo con sentido
- * ("primera-cita.jpg") se respeta; si es un hash de Instagram, cae a foto-NN.
+ * Nombres estables.
+ *
+ * Si renombras el original con algo con sentido ("primera-cita.jpg") se
+ * respeta. Si es un hash de Instagram, se le asigna foto-NN Y SE GUARDA en
+ * photos/nombres.json, para que conserve su número aunque más adelante
+ * añadas una foto cuyo nombre ordene antes.
+ *
+ * Sin ese registro, meter una foto nueva renumeraba a todas y los pies de
+ * foto de config.js acababan puestos en la imagen equivocada.
  */
-function nombreDe(archivo, indice) {
-  const base = parse(archivo).name.toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-  const esHash = base.length > 24 || /^[\d-]+$/.test(base);
-  return esHash ? `foto-${String(indice + 1).padStart(2, "0")}` : base;
+async function cargarRegistro() {
+  try { return JSON.parse(await readFile(REGISTRO, "utf8")); } catch { return {}; }
+}
+
+function asignarNombres(archivos, registro) {
+  const usados = new Set(Object.values(registro));
+  let siguiente = 1;
+  const libre = () => {
+    let n;
+    do { n = `foto-${String(siguiente++).padStart(2, "0")}`; } while (usados.has(n));
+    usados.add(n);
+    return n;
+  };
+
+  for (const archivo of archivos) {
+    if (registro[archivo]) continue;
+    const base = parse(archivo).name.toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const esHash = base.length > 24 || /^[\d-]+$/.test(base);
+    registro[archivo] = esHash ? libre() : base;
+  }
+  return registro;
 }
 
 /** Miniatura de 16px en base64: se pinta borrosa mientras carga la de verdad. */
@@ -51,11 +77,14 @@ async function main() {
     process.exit(1);
   }
 
+  const registro = asignarNombres(archivos, await cargarRegistro());
+  await writeFile(REGISTRO, JSON.stringify(registro, null, 2) + "\n");
+
   const entradas = [];
 
-  for (const [indice, archivo] of archivos.entries()) {
+  for (const archivo of archivos) {
     const entrada = join(ORIGEN, archivo);
-    const nombre = nombreDe(archivo, indice);
+    const nombre = registro[archivo];
     const img = sharp(entrada).rotate();               // respeta la orientación EXIF
     const { width, height } = await img.metadata();
 

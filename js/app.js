@@ -119,7 +119,10 @@ addEventListener("keydown", e => {
 function mostrarFinal() {
   const final = $("#final");
   final.querySelector("h2").textContent = cierre.titulo;
-  final.querySelector(".cierre").innerHTML = cierre.texto.join("<br>");
+  const cuantas = ["Ninguna", "Una", "Dos", "Tres", "Cuatro", "Cinco", "Seis",
+                   "Siete", "Ocho", "Nueve", "Diez"][fotos.length] ?? fotos.length;
+  final.querySelector(".cierre").innerHTML =
+    cierre.texto.join("<br>").replace("{fotos}", cuantas);
   // En la rejilla se piden de inmediato: aquí ya no hay nada que diferir.
   final.querySelector(".rejilla").innerHTML =
     fotos.map(f => imagen(f, { prioridad: true })).join("");

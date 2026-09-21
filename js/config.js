@@ -28,8 +28,10 @@ export const portada = {
 
 export const cierre = {
   titulo: "Y hasta aquí, mi amor",
+  // {fotos} lo sustituye app.js: si no, cada vez que añades una imagen el
+  // texto se queda mintiendo.
   texto: [
-    "Tres fotos, una canción y un jardín que florece para ti.",
+    "{fotos} fotos, una canción y un jardín que florece para ti.",
     "Lo de siempre: te amo.",
   ],
 };
@@ -82,6 +84,14 @@ export const fotos = [
     alt: "Los dos en la playa al atardecer, frente a frente, con una flor en tu pelo",
     caption: "El mar, el atardecer y tú. No hacía falta nada más.",
     lqip: "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAAAQAgCdASoMABAAA4BaJbACdADcou4QXxgAAP3VP0AhtFwLbxWZyhiwMqUoPoE2yoddLDD9hjG6e5v0r9eGhrP0wuln9NSnyL3hIA0ws3L5Ra7wakatAAAA",
+  },
+  {
+    nombre: "foto-04",
+    anchos: [480, 900, 1400],
+    ratio: 0.75,
+    alt: "Los dos bajo un arco de flores, con un corazón amarillo que dice 'Tu amor es un privilegio'",
+    caption: "Lo decía el cartel y yo solo pude asentir: tu amor es un privilegio.",
+    lqip: "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAADwAQCdASoMABAAA4BaJQBOgCFKciG9rAAA/ibSbLxwpUJ0PU0LNKO6GMVHDAWiLOLruDuXWTzibfr53yzIgUOTEtGcBVArtUin3lE1G5uA0U4slYAAAA==",
   },
   {
     nombre: "foto-02",

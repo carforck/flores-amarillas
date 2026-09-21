@@ -92,16 +92,19 @@ body.jardin-nitido #fondo .flowers {
   min-height: var(--alto);
   padding: calc(var(--seguro-arriba) + 2rem) 1.5rem calc(var(--seguro-abajo) + 2rem);
   text-align: center;
-  background: radial-gradient(ellipse at 50% 35%, #15200f 0%, #080c07 70%);
+  /* Translúcida: en móvil la portada ocupa toda la pantalla y si es opaca
+     esconde el jardín, el campo y el vídeo antes siquiera de empezar. */
+  background: radial-gradient(ellipse at 50% 35%, rgb(18 28 13 / 62%) 0%, rgb(6 10 5 / 88%) 72%);
   transition: opacity 700ms ease, visibility 700ms;
 }
 #portada.se-va { opacity: 0; visibility: hidden; }
 
-#portada .titulo {
+#portada .portada__titulo {
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0;
+  inline-size: 100%;
   font-family: var(--letra-emotiva);
   font-size: clamp(1.5rem, 6.5vw, 2.1rem);
   font-weight: 700;
@@ -115,6 +118,13 @@ body.jardin-nitido #fondo .flowers {
   min-height: 3.2lh;
   text-wrap: balance;
 }
+/* Sin esto el <span> no encoge por debajo de su contenido (los elementos flex
+   nacen con min-width:auto) y la frase se sale por el lado en vez de partir. */
+#typewriter {
+  min-inline-size: 0;
+  text-wrap: balance;
+}
+
 #typewriter::after {
   content: "";
   display: inline-block;
@@ -341,10 +351,29 @@ body.jardin-nitido #fondo .flowers {
 
 #verso {
   position: absolute;
-  inset-inline: 1.5rem;
-  inset-block-end: calc(var(--seguro-abajo) + 1.75rem);
+  inset-inline: 0.9rem;
+  inset-block-end: calc(var(--seguro-abajo) + 1rem);
   z-index: 3;
   margin: 0;
+  /* Placa translúcida: sobre el campo de flores amarillas el texto blanco a
+     pelo no se leía por mucha sombra que llevara. */
+  padding: 0.7rem 1rem;
+  border-radius: 1rem;
+  background: rgb(5 8 4 / 42%);
+  backdrop-filter: blur(12px) saturate(120%);
+  /* Alto reservado para tres líneas: así la placa no cambia de tamaño cada
+     vez que entra un verso más largo o más corto. */
+  min-block-size: calc(3lh + 1.4rem);
+  /* Las palabras son <span> propios para poder escalonarlas. Con grid cada
+     una se convertía en una celda y el verso salía en vertical, una palabra
+     por línea. Con flex envolvente fluyen como texto normal. */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  column-gap: 0.3em;
+  row-gap: 0;
   font-family: var(--letra-emotiva);
   font-size: clamp(1.25rem, 6vw, 1.6rem);
   font-weight: 700;
@@ -352,7 +381,7 @@ body.jardin-nitido #fondo .flowers {
   line-height: 1.4;
   text-align: center;
   text-wrap: balance;
-  text-shadow: 0 2px 18px rgb(0 0 0 / 95%), 0 0 44px rgb(0 0 0 / 80%);
+  text-shadow: 0 2px 14px rgb(0 0 0 / 90%);
   opacity: 0;
   transition: opacity 600ms ease, translate 600ms ease;
   translate: 0 8px;
